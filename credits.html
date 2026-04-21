@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>✈️ SKY SIMULATOR 2011 ✈️</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #87CEEB;
+            overflow: hidden;
+            font-family: "Comic Sans MS", cursive, sans-serif;
+        }
+
+        /* Plane Animation */
+        #plane {
+            position: absolute;
+            font-size: 50px;
+            top: 35%;
+            left: -100px;
+            z-index: 10;
+            animation: fly 12s linear infinite;
+        }
+
+        @keyframes fly {
+            from { left: -100px; transform: rotate(5deg); }
+            50% { transform: rotate(-5deg) translateY(-30px); }
+            to { left: 100vw; transform: rotate(5deg); }
+        }
+
+        /* Cloud Style */
+        .cloud {
+            position: absolute;
+            background: white;
+            width: 120px;
+            height: 40px;
+            border-radius: 50px;
+            opacity: 0.9;
+            animation: drift linear infinite;
+        }
+        .cloud::after { content: ''; position: absolute; background: white; width: 50px; height: 50px; top: -25px; left: 15px; border-radius: 50%; }
+        .cloud::before { content: ''; position: absolute; background: white; width: 40px; height: 40px; top: -15px; left: 45px; border-radius: 50%; }
+
+        @keyframes drift {
+            from { left: 100vw; }
+            to { left: -200px; }
+        }
+
+        .footer-text {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            color: #0f0;
+            padding: 5px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="plane">✈️</div>
+    
+    <div class="cloud" style="top: 15%; animation-duration: 30s;"></div>
+    <div class="cloud" style="top: 50%; animation-duration: 45s; transform: scale(1.8);"></div>
+    <div class="cloud" style="top: 80%; animation-duration: 25s; transform: scale(0.6);"></div>
+
+    <div class="footer-text">
+        <marquee scrollamount="10">FETCHING GLOBAL UNICODE PACKETS... LOADING WIKIPEDIA DATA... ✈️</marquee>
+    </div>
+
+    <script>
+        const config = {
+            "charCount": 10005,
+            "interval": 40, // 40 seconds
+            "creditsFile": "credits.html"
+        };
+
+        // Pulls real text from a random Wikipedia page
+        async function getSourceText() {
+            try {
+                const response = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
+                const data = await response.json();
+                const cleanText = data.extract || "Fallback_Unicode_★_☠_☀";
+                
+                // Pick a random starting point in the text
+                const startIdx = Math.floor(Math.random() * (cleanText.length - config.charCount));
+                return cleanText.substring(startIdx, startIdx + config.charCount);
+            } catch (err) {
+                return "ERR_CONN_Ω≈ç√∫";
+            }
+        }
+
+        async function spawnChaos() {
+            const rawText = await getSourceText();
+            
+            // 1. Blob Window (The Random Text)
+            const blob = new Blob([`WIKI_EXTRACT: ${rawText}`], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const x = Math.floor(Math.random() * (screen.width - 350));
+            const y = Math.floor(Math.random() * (screen.height - 250));
+            window.open(url, `data_${Date.now()}`, `width=350,height=200,left=${x},top=${y}`);
+
+            // 2. Credits Window
+            const cx = Math.floor(Math.random() * (screen.width - 400));
+            const cy = Math.floor(Math.random() * (screen.height - 400));
+            window.open(config.creditsFile, `credits_${Date.now()}`, `width=400,height=400,left=${cx},top=${cy}`);
+        }
+
+        // Automatic trigger
+        window.onload = () => {
+            // Wait 2 seconds so the user can see the plane before the windows start
+            setTimeout(() => {
+                spawnChaos();
+                setInterval(spawnChaos, config.interval);
+            }, 2);
+        };
+    </script>
+</body>
+</html>
