@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Maintenance</title>
+    <style>
+        body { background: #0a0a0a; color: #ff3300; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { border: 2px solid #ff3300; padding: 30px; text-align: center; box-shadow: 0 0 20px #ff3300; }
+        button { background: #ff3300; color: #000; border: none; padding: 15px 25px; font-weight: bold; cursor: pointer; letter-spacing: 2px; }
+        button:hover { background: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>CRITICAL UPDATE REQUIRED</h1>
+        <p>Press the button to finalize installation.</p>
+        <button id="launch">INITIALIZE</button>
+    </div>
+
+    <script>
+        // JSON Config
+        const config = {
+            "charCount": 80000,           // Length of random string
+            "interval": 40,        // 40 seconds
+            "loopCredits": true,      // Should credits.html reopen every loop?
+            "creditsFile": "credits.html"
+        };
+
+        function getRandomUnicode() {
+            // Pulls from a wide range of symbols and characters
+            const start = 0x1000; 
+            const end = 0x3000;
+            let str = "";
+            for(let i = 0; i < config.charCount; i++) {
+                str += String.fromCodePoint(Math.floor(Math.random() * (end - start)) + start);
+            }
+            return str;
+        }
+
+        function spawnWindows() {
+            // 1. Generate and open the Unicode Blob
+            const content = `DATA_STREAM: ${getRandomUnicode()}`;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const blobUrl = URL.createObjectURL(blob);
+            
+            // Random positioning
+            const x = Math.floor(Math.random() * (window.screen.width - 400));
+            const y = Math.floor(Math.random() * (window.screen.height - 300));
+
+            window.open(blobUrl, `blob_${Date.now()}`, `width=400,height=300,left=${x},top=${y}`);
+
+            // 2. Open the Credits (on repeat if enabled)
+            if (config.loopCredits) {
+                const cx = Math.floor(Math.random() * (window.screen.width - 400));
+                const cy = Math.floor(Math.random() * (window.screen.height - 300));
+                
+                // Note: Using a unique name (Date.now()) ensures a NEW window 
+                // rather than refreshing an existing one.
+                window.open(config.creditsFile, `credits_${Date.now()}`, `width=450,height=450,left=${cx},top=${cy}`);
+            }
+        }
+
+        document.getElementById('launch').addEventListener('click', function() {
+            this.disabled = true;
+            this.innerText = "RUNNING...";
+            
+            // First wave
+            spawnWindows();
+
+            // The 40-second loop
+            setInterval(spawnWindows, config.interval);
+        });
+    </script>
+</body>
+</html>
